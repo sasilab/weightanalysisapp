@@ -1,39 +1,42 @@
+# Gradio app for manual entry like Streamlit version (Grippers only)
+
 import gradio as gr
 import pandas as pd
 import matplotlib.pyplot as plt
 import os
 
-# File path
+# CSV file
 GRIPPER_FILE = "grippers.csv"
 
-# Load or create data
-default_data = [
-    {'Name': 'Vacuum Gripper', 'Cost': 6, 'ISO Compliance': 8, 'Safety': 9, 'Performance': 7},
-    {'Name': 'Soft Robotic Gripper', 'Cost': 7, 'ISO Compliance': 9, 'Safety': 8, 'Performance': 9}
-]
-
+# Load or create CSV
 def load_data():
+    default_data = [
+        {'Name': 'Vacuum Gripper', 'Cost': 6, 'ISO Compliance': 8, 'Safety': 9, 'Performance': 7},
+        {'Name': 'Soft Robotic Gripper', 'Cost': 7, 'ISO Compliance': 9, 'Safety': 8, 'Performance': 9}
+    ]
     if os.path.exists(GRIPPER_FILE):
         df = pd.read_csv(GRIPPER_FILE)
-        for col in default_data[0]:
-            if col not in df.columns:
-                df[col] = 0
         return df
     else:
         df = pd.DataFrame(default_data)
         df.to_csv(GRIPPER_FILE, index=False)
         return df
 
-# Score calculation
-def calculate_scores(df, weights):
-    for factor, weight in weights.items():
-        df[f"{factor} Weighted"] = df[factor] * weight
-    df["Total Score"] = df[[f"{k} Weighted" for k in weights]].sum(axis=1)
-    df["Rank"] = df["Total Score"].rank(ascending=False)
-    return df
+# Save entry
+def add_gripper(name, mat, gtype, act, payload, dur, ctrl, custom,
+                force_lim, surf, acc, algo, mon,
+                impact, failsafe, force_limit, comp_design,
+                versatility, precision, response, endurance, adapt):
 
-# Add new entry
-def add_entry(name, cost, iso, safety, performance):
+    # Cost sub-score
+    cost = round((mat + gtype + act + payload + dur + ctrl + custom) / 7, 2)
+    # ISO sub-score
+    iso = round((force_lim + surf + acc + algo + mon) / 5, 2)
+    # Safety sub-score
+    safety = round((impact + failsafe + force_limit + comp_design) / 4, 2)
+    # Performance sub-score
+    performance = round((versatility + precision + response + endurance + adapt) / 5, 2)
+
     df = load_data()
     new = pd.DataFrame([{
         "Name": name,
@@ -46,43 +49,82 @@ def add_entry(name, cost, iso, safety, performance):
     df.to_csv(GRIPPER_FILE, index=False)
     return update_output(0.25, 0.25, 0.25, 0.25)
 
-# Update and plot
+# Recalculate and show results
 def update_output(w_cost, w_iso, w_safety, w_perf):
     df = load_data()
-    weights = {"Cost": w_cost, "ISO Compliance": w_iso, "Safety": w_safety, "Performance": w_perf}
-    df = calculate_scores(df, weights)
+    df["Total Score"] = (df["Cost"] * w_cost +
+                         df["ISO Compliance"] * w_iso +
+                         df["Safety"] * w_safety +
+                         df["Performance"] * w_perf)
+    df["Rank"] = df["Total Score"].rank(ascending=False)
     fig, ax = plt.subplots()
-    ax.bar(df["Name"], df["Total Score"], color='skyblue')
+    ax.bar(df['Name'], df['Total Score'], color='skyblue')
     ax.set_ylabel("Score")
     ax.set_title("Gripper Score Ranking")
-    return df[["Name", "Total Score", "Rank"]], fig
+    return df[["Name", "Cost", "ISO Compliance", "Safety", "Performance", "Total Score", "Rank"]], fig
 
 # Gradio UI
 with gr.Blocks() as demo:
-    gr.Markdown("## 🦾 Gripper Evaluation - Manual Entry")
+    gr.Markdown("## 🦾 Manual Gripper Entry with Sub-Parameters")
 
-    with gr.Row():
+    with gr.Accordion("Enter Gripper Details", open=True):
         name = gr.Textbox(label="Gripper Name")
-        cost = gr.Slider(1, 10, value=5, label="Cost")
-        iso = gr.Slider(1, 10, value=5, label="ISO Compliance")
-        safety = gr.Slider(1, 10, value=5, label="Safety")
-        performance = gr.Slider(1, 10, value=5, label="Performance")
-        add_btn = gr.Button("➕ Add Gripper")
 
-    add_output = gr.Dataframe()
+        gr.Markdown("### Cost Sub-Parameters")
+        mat = gr.Slider(1, 10, 5, label="Gripper Material")
+        gtype = gr.Slider(1, 10, 5, label="Gripper Type")
+        act = gr.Slider(1, 10, 5, label="Actuation Mechanism")
+        payload = gr.Slider(1, 10, 5, label="Payload Capacity")
+        dur = gr.Slider(1, 10, 5, label="Durability")
+        ctrl = gr.Slider(1, 10, 5, label="Control Systems")
+        custom = gr.Slider(1, 10, 5, label="Customization")
+
+        gr.Markdown("### ISO Compliance Sub-Parameters")
+        force_lim = gr.Slider(1, 10, 5, label="Force Limiting Features")
+        surf = gr.Slider(1, 10, 5, label="Surface Material")
+        acc = gr.Slider(1, 10, 5, label="Accuracy Standards")
+        algo = gr.Slider(1, 10, 5, label="Control Algorithm")
+        mon = gr.Slider(1, 10, 5, label="Monitoring Systems")
+
+        gr.Markdown("### Safety Sub-Parameters")
+        impact = gr.Slider(1, 10, 5, label="Impact Resistance")
+        failsafe = gr.Slider(1, 10, 5, label="Fail-Safe Mechanisms")
+        force_limit = gr.Slider(1, 10, 5, label="Force Limitation")
+        comp_design = gr.Slider(1, 10, 5, label="Compliant Design")
+
+        gr.Markdown("### Performance Sub-Parameters")
+        versatility = gr.Slider(1, 10, 5, label="Grip Versatility")
+        precision = gr.Slider(1, 10, 5, label="Grip Precision")
+        response = gr.Slider(1, 10, 5, label="Response Time")
+        endurance = gr.Slider(1, 10, 5, label="Endurance")
+        adapt = gr.Slider(1, 10, 5, label="Environmental Adaptability")
+
+        add_button = gr.Button("Add Gripper")
+
+    gr.Markdown("### Adjust Weights")
+    w_cost = gr.Slider(0, 1, 0.25, step=0.05, label="Weight: Cost")
+    w_iso = gr.Slider(0, 1, 0.25, step=0.05, label="Weight: ISO Compliance")
+    w_safety = gr.Slider(0, 1, 0.25, step=0.05, label="Weight: Safety")
+    w_perf = gr.Slider(0, 1, 0.25, step=0.05, label="Weight: Performance")
+    update_btn = gr.Button("Update Ranking")
+
+    table = gr.Dataframe(label="Gripper Rankings")
     chart = gr.Plot()
 
-    with gr.Row():
-        w_cost = gr.Slider(0, 1, 0.25, label="Weight - Cost")
-        w_iso = gr.Slider(0, 1, 0.25, label="Weight - ISO")
-        w_safety = gr.Slider(0, 1, 0.25, label="Weight - Safety")
-        w_perf = gr.Slider(0, 1, 0.25, label="Weight - Performance")
-        update_btn = gr.Button("🔄 Update Ranking")
+    add_button.click(
+        fn=add_gripper,
+        inputs=[name, mat, gtype, act, payload, dur, ctrl, custom,
+                force_lim, surf, acc, algo, mon,
+                impact, failsafe, force_limit, comp_design,
+                versatility, precision, response, endurance, adapt],
+        outputs=[table, chart]
+    )
 
-    update_output_table = gr.Dataframe()
-    update_chart = gr.Plot()
+    update_btn.click(
+        fn=update_output,
+        inputs=[w_cost, w_iso, w_safety, w_perf],
+        outputs=[table, chart]
+    )
 
-    add_btn.click(fn=add_entry, inputs=[name, cost, iso, safety, performance], outputs=[add_output, chart])
-    update_btn.click(fn=update_output, inputs=[w_cost, w_iso, w_safety, w_perf], outputs=[update_output_table, update_chart])
-
-demo.launch()
+if __name__ == "__main__":
+    demo.launch()
