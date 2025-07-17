@@ -1,4 +1,4 @@
-# gripper_app.py - Gripper UI
+# gripper_app.py - Gripper Evaluation UI
 
 import gradio as gr
 import pandas as pd
@@ -40,13 +40,12 @@ def plot_chart(df):
 
 def render():
     gripper_defaults = [
-        {'Name': 'Vacuum Gripper', 'Cost': 6, 'ISO Compliance': 8, 'Safety': 9, 'Performance': 7},
-        {'Name': 'Soft Robotic Gripper', 'Cost': 7, 'ISO Compliance': 9, 'Safety': 8, 'Performance': 9}
+        {'Name': 'Soft Gripper A', 'Cost': 6, 'ISO Compliance': 7, 'Safety': 9, 'Performance': 8},
+        {'Name': 'Vacuum Gripper B', 'Cost': 5, 'ISO Compliance': 8, 'Safety': 8, 'Performance': 9}
     ]
-    
     df = load_or_create(GRIPPER_FILE, gripper_defaults)
 
-    with gr.Blocks() as demo:
+    with gr.Blocks() as app:
         with gr.Row():
             name = gr.Textbox(label="📝 Gripper Name")
         with gr.Accordion("💰 Cost Sub-parameters", open=False):
@@ -75,8 +74,14 @@ def render():
             end = gr.Slider(1, 10, value=5, label="Endurance")
             env = gr.Slider(1, 10, value=5, label="Environmental Adaptability")
 
-        btn = gr.Button("➕ Add Gripper")
+        add_btn = gr.Button("➕ Add Gripper")
 
+        with gr.Accordion("🔧 Global Weights", open=False):
+            weight_cost = gr.Slider(0, 1, value=0.25, label="💰 Cost Weight")
+            weight_iso = gr.Slider(0, 1, value=0.25, label="📃 ISO Compliance Weight")
+            weight_safety = gr.Slider(0, 1, value=0.25, label="🛡️ Safety Weight")
+            weight_perf = gr.Slider(0, 1, value=0.25, label="⚡ Performance Weight")
+            update_btn = gr.Button("🔄 Update Rankings")
 
         out_df = gr.Dataframe()
         out_plot = gr.Plot()
@@ -94,16 +99,29 @@ def render():
             new = {"Name": name, "Cost": cost_score, "ISO Compliance": iso_score, "Safety": safe_score, "Performance": perf_score}
             df = load_or_create(GRIPPER_FILE, gripper_defaults)
             df = save_entry(GRIPPER_FILE, df, new)
+            weights = {"Cost": weight_cost.value, "ISO Compliance": weight_iso.value, "Safety": weight_safety.value, "Performance": weight_perf.value}
             df = update_scores(df, weights)
             return df[['Name', 'Total Score', 'Rank']], plot_chart(df)
 
-        weights = {"Cost": 0.25, "ISO Compliance": 0.25, "Safety": 0.25, "Performance": 0.25}
+        def handle_update(w_cost, w_iso, w_safety, w_perf):
+            weights = {"Cost": w_cost, "ISO Compliance": w_iso, "Safety": w_safety, "Performance": w_perf}
+            df = load_or_create(GRIPPER_FILE, gripper_defaults)
+            df = update_scores(df, weights)
+            return df[['Name', 'Total Score', 'Rank']], plot_chart(df)
 
-        btn.click(fn=handle_add, 
-                  inputs=[name, mat, typ, act, load, dur, ctrl, cust,
-                          lim, surf, acc, algo, mon,
-                          imp, fail, force, comp,
-                          vers, prec, resp, end, env],
-                  outputs=[out_df, out_plot])
+        add_btn.click(
+            fn=handle_add,
+            inputs=[name, mat, typ, act, load, dur, ctrl, cust,
+                    lim, surf, acc, algo, mon,
+                    imp, fail, force, comp,
+                    vers, prec, resp, end, env],
+            outputs=[out_df, out_plot]
+        )
 
-    return demo
+        update_btn.click(
+            fn=handle_update,
+            inputs=[weight_cost, weight_iso, weight_safety, weight_perf],
+            outputs=[out_df, out_plot]
+        )
+
+    return app

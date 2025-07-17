@@ -12,3 +12,9 @@ some gripper three,5.95,8.0,6.83,6.92
 some gripper four,9.07,7.86,8.39,6.92
 some gripper five,9.84,9.96,10.0,10.0
 hi gripper,5.0,5.0,5.0,5.0
+hi gripper new ,5.0,5.0,5.0,5.0
+hi gripper new ,5.0,5.0,5.0,5.0
+hi gripper new ,1.0,10.0,8.0,2.0
+testing parameters,1.0,1.0,1.0,1.0
+testing parameters,9.0,6.0,5.0,4.0
+testing parameters 2,9.0,6.0,5.0,4.0
