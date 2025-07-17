@@ -67,7 +67,20 @@ def render():
 
         def handle_add(name, iso_accuracy, iso_protocol, iso_cert):
             iso_score = round((iso_accuracy + iso_protocol + iso_cert) / 3, 2)
-            new = {"Name": name, "Cost": 5, "ISO Compliance": iso_score, "Safety": 5, "Performance": 5}
+            new = {
+                "Name": name,
+                "Cost": 5,
+                "ISO Compliance": iso_score,
+                "Safety": 5,
+                "Performance": 5,
+                "ISO Accuracy": iso_accuracy,
+                "ISO Protocol": iso_protocol,
+                "ISO Certification": iso_cert,
+                "Weight Cost": weight_cost.value,
+                "Weight ISO": weight_iso.value,
+                "Weight Safety": weight_safety.value,
+                "Weight Performance": weight_perf.value
+            }
             df = load_or_create(SENSOR_FILE, sensor_defaults)
             df = save_entry(SENSOR_FILE, df, new)
             weights = {"Cost": weight_cost.value, "ISO Compliance": weight_iso.value, "Safety": weight_safety.value, "Performance": weight_perf.value}

@@ -1,4 +1,5 @@
-Name,Cost,ISO Compliance,Safety,Performance
-Tactile Sensor A,6,7.0,9,8
-Proximity Sensor B,5,8.0,8,9
-testing parameters,5,5.0,5,5
+Name,Cost,ISO Compliance,Safety,Performance,ISO Accuracy,ISO Protocol,ISO Certification,Weight Cost,Weight ISO,Weight Safety,Weight Performance
+Tactile Sensor A,6,7.0,9,8,,,,,,,
+Proximity Sensor B,5,8.0,8,9,,,,,,,
+testing parameters,5,5.0,5,5,,,,,,,
+hello there,5,5.0,5,5,5.0,5.0,5.0,0.25,0.25,0.25,0.25
