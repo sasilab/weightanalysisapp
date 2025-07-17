@@ -1,4 +1,4 @@
-# Gradio app for manual entry like Streamlit version (Grippers only)
+# Gradio app for manual entry like Streamlit version (Compact UI)
 
 import gradio as gr
 import pandas as pd
@@ -65,48 +65,50 @@ def update_output(w_cost, w_iso, w_safety, w_perf):
 
 # Gradio UI
 with gr.Blocks() as demo:
-    gr.Markdown("## 🦾 Manual Gripper Entry with Sub-Parameters")
+    gr.Markdown("## 🦾 Compact Gripper Entry UI")
 
     with gr.Accordion("Enter Gripper Details", open=True):
         name = gr.Textbox(label="Gripper Name")
 
-        gr.Markdown("### Cost Sub-Parameters")
-        mat = gr.Slider(1, 10, 5, label="Gripper Material")
-        gtype = gr.Slider(1, 10, 5, label="Gripper Type")
-        act = gr.Slider(1, 10, 5, label="Actuation Mechanism")
-        payload = gr.Slider(1, 10, 5, label="Payload Capacity")
-        dur = gr.Slider(1, 10, 5, label="Durability")
-        ctrl = gr.Slider(1, 10, 5, label="Control Systems")
-        custom = gr.Slider(1, 10, 5, label="Customization")
+        with gr.Row():
+            mat = gr.Slider(1, 10, 5, label="Material")
+            gtype = gr.Slider(1, 10, 5, label="Type")
+            act = gr.Slider(1, 10, 5, label="Actuation")
+            payload = gr.Slider(1, 10, 5, label="Payload")
+        with gr.Row():
+            dur = gr.Slider(1, 10, 5, label="Durability")
+            ctrl = gr.Slider(1, 10, 5, label="Control")
+            custom = gr.Slider(1, 10, 5, label="Customization")
 
-        gr.Markdown("### ISO Compliance Sub-Parameters")
-        force_lim = gr.Slider(1, 10, 5, label="Force Limiting Features")
-        surf = gr.Slider(1, 10, 5, label="Surface Material")
-        acc = gr.Slider(1, 10, 5, label="Accuracy Standards")
-        algo = gr.Slider(1, 10, 5, label="Control Algorithm")
-        mon = gr.Slider(1, 10, 5, label="Monitoring Systems")
+        with gr.Row():
+            force_lim = gr.Slider(1, 10, 5, label="Force Limiting")
+            surf = gr.Slider(1, 10, 5, label="Surface Material")
+            acc = gr.Slider(1, 10, 5, label="Accuracy")
+            algo = gr.Slider(1, 10, 5, label="Algorithm")
+            mon = gr.Slider(1, 10, 5, label="Monitoring")
 
-        gr.Markdown("### Safety Sub-Parameters")
-        impact = gr.Slider(1, 10, 5, label="Impact Resistance")
-        failsafe = gr.Slider(1, 10, 5, label="Fail-Safe Mechanisms")
-        force_limit = gr.Slider(1, 10, 5, label="Force Limitation")
-        comp_design = gr.Slider(1, 10, 5, label="Compliant Design")
+        with gr.Row():
+            impact = gr.Slider(1, 10, 5, label="Impact")
+            failsafe = gr.Slider(1, 10, 5, label="Fail-safe")
+            force_limit = gr.Slider(1, 10, 5, label="Force Limit")
+            comp_design = gr.Slider(1, 10, 5, label="Compliance")
 
-        gr.Markdown("### Performance Sub-Parameters")
-        versatility = gr.Slider(1, 10, 5, label="Grip Versatility")
-        precision = gr.Slider(1, 10, 5, label="Grip Precision")
-        response = gr.Slider(1, 10, 5, label="Response Time")
-        endurance = gr.Slider(1, 10, 5, label="Endurance")
-        adapt = gr.Slider(1, 10, 5, label="Environmental Adaptability")
+        with gr.Row():
+            versatility = gr.Slider(1, 10, 5, label="Versatility")
+            precision = gr.Slider(1, 10, 5, label="Precision")
+            response = gr.Slider(1, 10, 5, label="Response Time")
+            endurance = gr.Slider(1, 10, 5, label="Endurance")
+            adapt = gr.Slider(1, 10, 5, label="Adaptability")
 
         add_button = gr.Button("Add Gripper")
 
     gr.Markdown("### Adjust Weights")
-    w_cost = gr.Slider(0, 1, 0.25, step=0.05, label="Weight: Cost")
-    w_iso = gr.Slider(0, 1, 0.25, step=0.05, label="Weight: ISO Compliance")
-    w_safety = gr.Slider(0, 1, 0.25, step=0.05, label="Weight: Safety")
-    w_perf = gr.Slider(0, 1, 0.25, step=0.05, label="Weight: Performance")
-    update_btn = gr.Button("Update Ranking")
+    with gr.Row():
+        w_cost = gr.Slider(0, 1, 0.25, step=0.05, label="Weight: Cost")
+        w_iso = gr.Slider(0, 1, 0.25, step=0.05, label="Weight: ISO")
+        w_safety = gr.Slider(0, 1, 0.25, step=0.05, label="Weight: Safety")
+        w_perf = gr.Slider(0, 1, 0.25, step=0.05, label="Weight: Performance")
+        update_btn = gr.Button("Update Ranking")
 
     table = gr.Dataframe(label="Gripper Rankings")
     chart = gr.Plot()
