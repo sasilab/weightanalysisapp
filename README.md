@@ -124,6 +124,3 @@ PRs, suggestions, and collaborations are welcome! Please open an issue to discus
 
 [MIT License](LICENSE)
 
----
-
-Would you like this saved to a file or pushed to your GitHub repo as well? I can also help you write usage examples or create badges.
